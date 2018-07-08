@@ -18,6 +18,9 @@ package edu.psu.ist411;
 
 import edu.psu.ist411.presentation.UserViewPageMessageBodyWriter;
 import edu.psu.ist411.presentation.UsersController;
+import io.swagger.jaxrs.config.BeanConfig;
+import io.swagger.jaxrs.listing.ApiListingResource;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.springframework.context.annotation.Configuration;
@@ -33,9 +36,28 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JerseyConfig extends ResourceConfig {
     public JerseyConfig() {
+        configureJersey();
+        configureSwagger();
+    }
+
+    public void configureJersey() {
         register(UsersController.class);
         register(UserViewPageMessageBodyWriter.class);
 
         property(ServletProperties.FILTER_FORWARD_ON_404, true);
+    }
+
+    public void configureSwagger() {
+        register(ApiListingResource.class);
+        register(SwaggerSerializers.class);
+
+        final BeanConfig beanConfig = new BeanConfig();
+        beanConfig.setVersion("1.0.0");
+        beanConfig.setSchemes(new String[] {"http"});
+        beanConfig.setHost("localhost:8080");
+        beanConfig.setBasePath("/api");
+        beanConfig.setResourcePackage("io.swagger.resources");
+        beanConfig.setPrettyPrint(true);
+        beanConfig.setScan(true);
     }
 }
