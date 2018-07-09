@@ -98,4 +98,11 @@ public class UserServiceImpl implements UserService {
         // Save the business model.
         return userRepository.save(user);
     }
+
+    @Override
+    public User deleteUser(final long userId) {
+        final User user = getUser(userId);
+        userRepository.delete(user);
+        return user;
+    }
 }

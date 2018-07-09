@@ -30,7 +30,7 @@ public abstract class UserModels {
     private UserModels() {}
 
     /** Request body for user creation. */
-    public static final class UserCreateRequest {
+    public static final class UserRequestBody {
         private String email;
         private String firstName;
         private String lastName;

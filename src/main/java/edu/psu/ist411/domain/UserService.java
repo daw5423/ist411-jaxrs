@@ -38,7 +38,7 @@ public interface UserService {
 
     /**
      * Gets a user using their unique identifier.
-     * @param userId Unique id of user.
+     * @param userId Unique ID of user.
      * @return {@link User}.
      */
     User getUser(long userId);
@@ -72,4 +72,11 @@ public interface UserService {
      * @throws InvalidEmailException if user with email already exists.
      */
     User updateUser(long userId, String email, String first, String last);
+
+    /**
+     * Deletes an existing user.
+     * @param userId
+     * @return Unique ID of user.
+     */
+    User deleteUser(long userId);
 }

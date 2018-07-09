@@ -19,10 +19,11 @@ package edu.psu.ist411.presentation;
 import edu.psu.ist411.data.User;
 import edu.psu.ist411.domain.UserService;
 import edu.psu.ist411.presentation.UserModels.UserView;
-import edu.psu.ist411.presentation.UserModels.UserCreateRequest;
+import edu.psu.ist411.presentation.UserModels.UserRequestBody;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -33,6 +34,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,7 +54,8 @@ import org.springframework.stereotype.Component;
  * @author Win Ton
  */
 @Component
-@Path("/api/users")
+@Path("/users")
+@Api(value = "/users", description = "Manage user details.")
 public class UsersController {
     private final UserService userService;
 
@@ -63,20 +71,36 @@ public class UsersController {
         final User userC = userService.createUser("c@c.com", "C", "C");
     }
 
+    @ApiOperation(value = "Gets a page of users.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Successful operation.")
+    })
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_HTML})
-    public Response getUsers(@DefaultValue("0") @QueryParam("page") final int page,
-                             @DefaultValue("15") @QueryParam("results") final int results) {
+    public Response getUsers(
+        @ApiParam(value = "The page number.")
+        @DefaultValue("0") @QueryParam("page") final int page,
+
+        @ApiParam(value = "The number of results to return.")
+        @DefaultValue("15") @QueryParam("results") final int results
+    ) {
         final Page<UserView> modelPage = userService
-                .getUsers(PageRequest.of(page, results))
-                .map(UserView::new);
+            .getUsers(PageRequest.of(page, results))
+            .map(UserView::new);
         return Response.status(200).entity(modelPage).build();
     }
 
+    @ApiOperation(value = "Creates a user.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Successful operation.")
+    })
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createUser(final UserCreateRequest body) {
+    public Response createUser(
+        @ApiParam(value = "The request body.")
+        final UserRequestBody body
+    ) {
         // Store and create the user.
         final User user = userService.createUser(
             body.getEmail(),
@@ -88,11 +112,21 @@ public class UsersController {
         return Response.status(200).entity(new UserView(user)).build();
     }
 
+    @ApiOperation(value = "Gets a user by ID.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Successful operation.")
+    })
     @GET
     @Path("/{userId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@PathParam("userId") final long userId, final UserCreateRequest body) {
+    public Response getUser(
+        @ApiParam(value = "The user ID.")
+        @PathParam("userId") final long userId,
+
+        @ApiParam(value = "The request body.")
+        final UserRequestBody body
+    ) {
         // Get the user.
         final User user = userService.getUser(userId);
 
@@ -100,11 +134,21 @@ public class UsersController {
         return Response.status(200).entity(new UserView(user)).build();
     }
 
+    @ApiOperation(value = "Updates a user by ID.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Successful operation.")
+    })
     @PUT
     @Path("/{userId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUser(@PathParam("userId") final long userId, final UserCreateRequest body) {
+    public Response updateUser(
+        @ApiParam(value = "The user ID.")
+        @PathParam("userId") final long userId,
+
+        @ApiParam(value = "The request body.")
+        final UserRequestBody body
+    ) {
         // Update the user.
         final User user = userService.updateUser(
             userId,
@@ -112,6 +156,25 @@ public class UsersController {
             body.getFirstName(),
             body.getLastName()
         );
+
+        // Return the presentation-layer view as JSON.
+        return Response.status(200).entity(new UserView(user)).build();
+    }
+
+    @ApiOperation(value = "Deletes a user by ID.")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Successful operation.")
+    })
+    @DELETE
+    @Path("/{userId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteUser(
+        @ApiParam(value = "The user ID.")
+        @PathParam("userId") final long userId
+    ) {
+        // Delete the user.
+        final User user = userService.deleteUser(userId);
 
         // Return the presentation-layer view as JSON.
         return Response.status(200).entity(new UserView(user)).build();
